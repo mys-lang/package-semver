@@ -36,20 +36,20 @@ class _LatestVersionFinder:
         self.latest = version
         self._latest = (major, minor, revision)
 
-def is_later_version(version: string, latest_version: string) -> bool:
-    """Returns True if `version` is later than `latest_version`, otherwise
-    False.
+def is_later_version(new_version: string, old_version: string) -> bool:
+    """Returns True if `new_version` is later than `old_version`,
+    otherwise False.
 
-    Raises SemVerError if `version` or `latest_version` is not a valid
-    semantic version.
+    Raises SemVerError if `new_version` or `old_version` is not a
+    valid semantic version.
 
     """
 
     finder = _LatestVersionFinder()
-    finder.add(version)
-    finder.add(latest_version)
+    finder.add(new_version)
+    finder.add(old_version)
 
-    return finder.latest == version
+    return finder.latest == new_version
 
 @test
 def test_is_later_version():
