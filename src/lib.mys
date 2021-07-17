@@ -1,55 +1,83 @@
 class SemVerError(Error):
     message: string
 
+class Version:
+    """A semantic version.
+
+    """
+
+    major: i64
+    minor: i64
+    patch: i64
+    pre_release: string
+    build_metadata: string
+
+    def __init__(self, version: string):
+        mo = version.match(
+            re"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
+            re"(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+            re"(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+"
+            re"(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")
+
+        if mo is None:
+            raise SemVerError(f"invalid semantic version '{version}'")
+
+        self.major = i64(mo.group(1))
+        self.minor = i64(mo.group(2))
+        self.patch = i64(mo.group(3))
+        self.pre_release = mo.group(4)
+        self.build_metadata = mo.group(5)
+
+    def __str__(self) -> string:
+        version = f"{self.major}.{self.minor}.{self.patch}"
+
+        if self.pre_release is not None:
+            version += f"-{self.pre_release}"
+
+        if self.build_metadata is not None:
+            version += f"+{self.build_metadata}"
+
+        return version
+
 class _LatestVersionFinder:
-    latest: string
-    _latest: (i64, i64, i64)
+    latest: Version
 
     def __init__(self):
         self.latest = None
 
     def add(self, version: string):
-        mo = version.match(re"^(\d+)\.(\d+)\.(\d+)$")
-
-        if mo is None:
-            raise SemVerError(f"invalid semantic version '{version}'")
-
-        major = i64(mo.group(1))
-        minor = i64(mo.group(2))
-        revision = i64(mo.group(3))
+        semver = Version(version)
 
         if self.latest is None:
-            self.latest = version
-            self._latest = (major, minor, revision)
+            self.latest = semver
 
             return
 
-        if major < self._latest[0]:
+        if semver.major < self.latest.major:
             return
-        elif major == self._latest[0]:
-            if minor < self._latest[1]:
+        elif semver.major == self.latest.major:
+            if semver.minor < self.latest.minor:
                 return
-            elif minor == self._latest[1]:
-                if revision < self._latest[2]:
+            elif semver.minor == self.latest.minor:
+                if semver.patch < self.latest.patch:
                     return
 
-        self.latest = version
-        self._latest = (major, minor, revision)
+        self.latest = semver
 
-def is_later_version(new_version: string, old_version: string) -> bool:
-    """Returns True if `new_version` is later than `old_version`,
-    otherwise False.
+def is_later_version(version: string, latest_version: string) -> bool:
+    """Returns True if `version` is later than `latest_version`, otherwise
+    False.
 
-    Raises SemVerError if `new_version` or `old_version` is not a
-    valid semantic version.
+    Raises SemVerError if `version` or `latest_version` is not a valid
+    semantic version.
 
     """
 
     finder = _LatestVersionFinder()
-    finder.add(new_version)
-    finder.add(old_version)
+    finder.add(version)
+    finder.add(latest_version)
 
-    return finder.latest == new_version
+    return str(finder.latest) == version
 
 @test
 def test_is_later_version():
@@ -78,3 +106,32 @@ def test_is_later_version_bad_versions():
         message = err.message
 
     assert message == "invalid semantic version '0.0.0.1'"
+
+@test
+def test_version():
+    version_string = "1.2.0-rc-4+meta"
+    version = Version(version_string)
+    assert version.major == 1
+    assert version.minor == 2
+    assert version.patch == 0
+    assert version.pre_release == "rc-4"
+    assert version.build_metadata == "meta"
+    assert str(version) == version_string
+
+    version_string = "3.1.2"
+    version = Version(version_string)
+    assert version.major == 3
+    assert version.minor == 1
+    assert version.patch == 2
+    assert version.pre_release is None
+    assert version.build_metadata is None
+    assert str(version) == version_string
+
+    version_string = "100.200.300+foo"
+    version = Version(version_string)
+    assert version.major == 100
+    assert version.minor == 200
+    assert version.patch == 300
+    assert version.pre_release is None
+    assert version.build_metadata == "foo"
+    assert str(version) == version_string
