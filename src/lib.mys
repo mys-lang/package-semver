@@ -6,9 +6,9 @@ class Version:
 
     """
 
-    major: i64
-    minor: i64
-    patch: i64
+    major: u64
+    minor: u64
+    patch: u64
     pre_release: string
     build_metadata: string
 
@@ -32,9 +32,9 @@ class Version:
         if mo is None:
             raise SemVerError(f"invalid semantic version '{version}'")
 
-        self.major = i64(mo.group(1))
-        self.minor = i64(mo.group(2))
-        self.patch = i64(mo.group(3))
+        self.major = u64(mo.group(1))
+        self.minor = u64(mo.group(2))
+        self.patch = u64(mo.group(3))
         self.pre_release = mo.group(4)
         self.build_metadata = mo.group(5)
 
