@@ -9,8 +9,8 @@ class Version:
     major: u64
     minor: u64
     patch: u64
-    pre_release: string
-    build_metadata: string
+    _pre_release: string
+    _build_metadata: string
 
     def __init__(self, version: string):
         """Initialize a version object from given string `version`.
@@ -35,17 +35,17 @@ class Version:
         self.major = u64(mo.group(1))
         self.minor = u64(mo.group(2))
         self.patch = u64(mo.group(3))
-        self.pre_release = mo.group(4)
-        self.build_metadata = mo.group(5)
+        self._pre_release = mo.group(4)
+        self._build_metadata = mo.group(5)
 
     def __str__(self) -> string:
         version = f"{self.major}.{self.minor}.{self.patch}"
 
-        if self.pre_release is not None:
-            version += f"-{self.pre_release}"
+        if self._pre_release is not None:
+            version += f"-{self._pre_release}"
 
-        if self.build_metadata is not None:
-            version += f"+{self.build_metadata}"
+        if self._build_metadata is not None:
+            version += f"+{self._build_metadata}"
 
         return version
 
@@ -124,8 +124,6 @@ def test_version():
     assert version.major == 1
     assert version.minor == 2
     assert version.patch == 0
-    assert version.pre_release == "rc-4"
-    assert version.build_metadata == "meta"
     assert str(version) == version_string
 
     version_string = "3.1.2"
@@ -133,8 +131,6 @@ def test_version():
     assert version.major == 3
     assert version.minor == 1
     assert version.patch == 2
-    assert version.pre_release is None
-    assert version.build_metadata is None
     assert str(version) == version_string
 
     version_string = "100.200.300+foo"
@@ -142,6 +138,4 @@ def test_version():
     assert version.major == 100
     assert version.minor == 200
     assert version.patch == 300
-    assert version.pre_release is None
-    assert version.build_metadata == "foo"
     assert str(version) == version_string
