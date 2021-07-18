@@ -1,7 +1,7 @@
 Semver
 ======
 
-Semantic versioning in the `Mys programming language`_.
+The semantic versioning package in the `Mys programming language`_.
 
 Documentation: https://mys-lang.org/package/semver/latest/index.html
 

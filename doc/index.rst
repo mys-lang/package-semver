@@ -1,7 +1,7 @@
 About
 =====
 
-The semantic version package in the `Mys programming language`_.
+The semantic versioning package in the `Mys programming language`_.
 
 Project: https://github.com/mys-lang/package-semver
 
