@@ -13,6 +13,13 @@ class Version:
     build_metadata: string
 
     def __init__(self, version: string):
+        """Initialize a version object from given string `version`.
+
+        Raises SemVerError if `version` is not a valid semantic
+        version.
+
+        """
+
         mo = version.match(
             re"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
             re"(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)"
