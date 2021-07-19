@@ -1,6 +1,58 @@
 class SemVerError(Error):
     message: string
 
+class PreRelease:
+    """A semantic version pre-release value.
+
+    """
+
+    _value: string
+
+    def __init__(self, value: string):
+        """Initialize a version object from given string `version`.
+
+        Raises SemVerError if `value` is not a valid semantic version
+        pre-release.
+
+        """
+
+        mo = value.match(
+            re"((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)"
+            re"(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)")
+
+        if mo is None:
+            raise SemVerError(f"invalid semantic version pre-release '{value}'")
+
+        self._value = mo.group(1)
+
+    def __str__(self) -> string:
+        return self._value
+
+class BuildMetadata:
+    """A semantic version build metadata value.
+
+    """
+
+    _value: string
+
+    def __init__(self, value: string):
+        """Initialize a build metadata object from given string `value`.
+
+        Raises SemVerError if `value` is not a valid semantic version
+        build metadata.
+
+        """
+
+        mo = value.match(re"^([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)$")
+
+        if mo is None:
+            raise SemVerError(f"invalid semantic version build metadata '{value}'")
+
+        self._value = mo.group(1)
+
+    def __str__(self) -> string:
+        return self._value
+
 class Version:
     """A semantic version.
 
@@ -9,8 +61,8 @@ class Version:
     major: u64
     minor: u64
     patch: u64
-    _pre_release: string
-    _build_metadata: string
+    pre_release: PreRelease
+    build_metadata: BuildMetadata
 
     def __init__(self, version: string):
         """Initialize a version object from given string `version`.
@@ -35,8 +87,20 @@ class Version:
         self.major = u64(mo.group(1))
         self.minor = u64(mo.group(2))
         self.patch = u64(mo.group(3))
-        self._pre_release = mo.group(4)
-        self._build_metadata = mo.group(5)
+
+        value = mo.group(4)
+
+        if value is not None:
+            self.pre_release = PreRelease(value)
+        else:
+            self.pre_release = None
+
+        value = mo.group(5)
+
+        if value is not None:
+            self.build_metadata = BuildMetadata(value)
+        else:
+            self.build_metadata = None
 
     def __eq__(self, other: Version) -> bool:
         return ((self.major == other.major)
@@ -70,11 +134,11 @@ class Version:
     def __str__(self) -> string:
         version = f"{self.major}.{self.minor}.{self.patch}"
 
-        if self._pre_release is not None:
-            version += f"-{self._pre_release}"
+        if self.pre_release is not None:
+            version += f"-{self.pre_release}"
 
-        if self._build_metadata is not None:
-            version += f"+{self._build_metadata}"
+        if self.build_metadata is not None:
+            version += f"+{self.build_metadata}"
 
         return version
 
@@ -138,3 +202,13 @@ def test_compare():
     assert Version("1.1.1") <= Version("1.1.1")
     assert Version("1.1.1") >= Version("0.1.1")
     assert Version("2.1.1") >= Version("2.1.1")
+
+    assert str(Version("1.0.0-rc4").pre_release) == "rc4"
+    assert str(Version("1.0.0+2fd3493b").build_metadata) == "2fd3493b"
+
+    version = Version("1.0.0-rc5+1fd3493b")
+    assert version.major == 1
+    assert version.minor == 0
+    assert version.patch == 0
+    assert str(version.pre_release) == "rc5"
+    assert str(version.build_metadata) == "1fd3493b"
