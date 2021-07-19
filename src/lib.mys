@@ -149,6 +149,8 @@ def test_version():
     assert version.major == 1
     assert version.minor == 2
     assert version.patch == 0
+    assert str(version.pre_release) == "rc-4"
+    assert str(version.build_metadata) == "meta"
     assert str(version) == version_string
 
     version_string = "3.1.2"
@@ -156,6 +158,8 @@ def test_version():
     assert version.major == 3
     assert version.minor == 1
     assert version.patch == 2
+    assert version.pre_release is None
+    assert version.build_metadata is None
     assert str(version) == version_string
 
     version_string = "100.200.300+foo"
@@ -163,6 +167,8 @@ def test_version():
     assert version.major == 100
     assert version.minor == 200
     assert version.patch == 300
+    assert version.pre_release is None
+    assert str(version.build_metadata) == "foo"
     assert str(version) == version_string
 
 @test
