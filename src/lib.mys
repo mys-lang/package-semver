@@ -2,14 +2,14 @@ class SemVerError(Error):
     message: string
 
 class PreRelease:
-    """A semantic version pre-release value.
+    """A semantic version pre-release.
 
     """
 
     _value: string
 
     def __init__(self, value: string):
-        """Initialize a version object from given string `version`.
+        """Initialize a pre-release object from given string `value`.
 
         Raises SemVerError if `value` is not a valid semantic version
         pre-release.
@@ -29,7 +29,7 @@ class PreRelease:
         return self._value
 
 class BuildMetadata:
-    """A semantic version build metadata value.
+    """A semantic version build metadata.
 
     """
 
