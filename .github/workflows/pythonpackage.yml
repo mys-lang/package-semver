@@ -22,6 +22,7 @@ jobs:
     - name: Test
       run: |
         mys test -o speed
+        mys -C examples/compare run -- 1.0.0 2.0.0
 
   release:
     needs: [linux]

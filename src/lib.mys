@@ -38,6 +38,35 @@ class Version:
         self._pre_release = mo.group(4)
         self._build_metadata = mo.group(5)
 
+    def __lt__(self, other: Version) -> bool:
+        if self.major < other.major:
+            return True
+        elif self.major == other.major:
+            if self.minor < other.minor:
+                return True
+            elif self.minor == other.minor:
+                if self.patch < other.patch:
+                    return True
+
+        return False
+
+    def __eq__(self, other: Version) -> bool:
+        return ((self.major == other.major)
+                and (self.minor == other.minor)
+                and (self.patch == other.patch))
+
+    def __le__(self, other: Version) -> bool:
+        return self < other or self == other
+
+    def __gt__(self, other: Version) -> bool:
+        return not (self <= other)
+
+    def __ne__(self, other: Version) -> bool:
+        return not (self == other)
+
+    def __ge__(self, other: Version) -> bool:
+        return not (self < other)
+
     def __str__(self) -> string:
         version = f"{self.major}.{self.minor}.{self.patch}"
 
@@ -48,74 +77,6 @@ class Version:
             version += f"+{self._build_metadata}"
 
         return version
-
-class _LatestVersionFinder:
-    latest: Version
-
-    def __init__(self):
-        self.latest = None
-
-    def add(self, version: string):
-        semver = Version(version)
-
-        if self.latest is None:
-            self.latest = semver
-
-            return
-
-        if semver.major < self.latest.major:
-            return
-        elif semver.major == self.latest.major:
-            if semver.minor < self.latest.minor:
-                return
-            elif semver.minor == self.latest.minor:
-                if semver.patch < self.latest.patch:
-                    return
-
-        self.latest = semver
-
-def is_later_version(version: string, latest_version: string) -> bool:
-    """Returns True if `version` is later than `latest_version`, otherwise
-    False.
-
-    Raises SemVerError if `version` or `latest_version` is not a valid
-    semantic version.
-
-    """
-
-    finder = _LatestVersionFinder()
-    finder.add(version)
-    finder.add(latest_version)
-
-    return str(finder.latest) == version
-
-@test
-def test_is_later_version():
-    assert is_later_version("1.0.0", "0.0.0")
-    assert is_later_version("1.1.0", "1.0.0")
-    assert is_later_version("1.1.1", "1.1.0")
-
-    assert not is_later_version("0.0.0", "1.0.0")
-    assert not is_later_version("1.0.0", "1.1.0")
-    assert not is_later_version("1.1.0", "1.1.1")
-
-@test
-def test_is_later_version_bad_versions():
-    try:
-        message = ""
-        is_later_version("1.0", "0.0.0")
-    except SemVerError as err:
-        message = err.message
-
-    assert message == "invalid semantic version '1.0'"
-
-    try:
-        message = ""
-        is_later_version("1.0.0", "0.0.0.1")
-    except SemVerError as err:
-        message = err.message
-
-    assert message == "invalid semantic version '0.0.0.1'"
 
 @test
 def test_version():
@@ -139,3 +100,41 @@ def test_version():
     assert version.minor == 200
     assert version.patch == 300
     assert str(version) == version_string
+
+@test
+def test_bad_versions():
+    try:
+        message = ""
+        Version("1.0")
+    except SemVerError as err:
+        message = err.message
+
+    assert message == "invalid semantic version '1.0'"
+
+    try:
+        message = ""
+        Version("0.0.0.1")
+    except SemVerError as err:
+        message = err.message
+
+    assert message == "invalid semantic version '0.0.0.1'"
+
+@test
+def test_compare():
+    assert Version("1.0.0") > Version("0.0.0")
+    assert Version("1.1.0") > Version("1.0.0")
+    assert Version("1.1.1") > Version("1.1.0")
+    assert not (Version("1.0.0") > Version("1.0.0"))
+
+    assert Version("0.0.0") < Version("1.0.0")
+    assert Version("1.0.0") < Version("1.1.0")
+    assert Version("1.1.0") < Version("1.1.1")
+    assert not (Version("1.0.0") < Version("1.0.0"))
+
+    assert Version("0.1.0") == Version("0.1.0")
+    assert Version("0.1.0") != Version("0.2.0")
+
+    assert Version("1.1.0") <= Version("1.1.1")
+    assert Version("1.1.1") <= Version("1.1.1")
+    assert Version("1.1.1") >= Version("0.1.1")
+    assert Version("2.1.1") >= Version("2.1.1")
