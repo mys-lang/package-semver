@@ -53,6 +53,13 @@ class BuildMetadata:
     def __str__(self) -> string:
         return self._value
 
+def _check_compare_only_major_minor_patch(version: Version):
+    if version.pre_release is not None:
+        raise SemVerError("comparing pre-release is not supported")
+
+    if version.build_metadata is not None:
+        raise SemVerError("comparing build metadata is not supported")
+
 class Version:
     """A semantic version.
 
@@ -103,6 +110,9 @@ class Version:
             self.build_metadata = None
 
     def __eq__(self, other: Version) -> bool:
+        _check_compare_only_major_minor_patch(self)
+        _check_compare_only_major_minor_patch(other)
+
         return ((self.major == other.major)
                 and (self.minor == other.minor)
                 and (self.patch == other.patch))
@@ -111,6 +121,9 @@ class Version:
         return not (self == other)
 
     def __lt__(self, other: Version) -> bool:
+        _check_compare_only_major_minor_patch(self)
+        _check_compare_only_major_minor_patch(other)
+
         if self.major < other.major:
             return True
         elif self.major == other.major:
@@ -218,3 +231,29 @@ def test_compare():
     assert version.patch == 0
     assert str(version.pre_release) == "rc5"
     assert str(version.build_metadata) == "1fd3493b"
+
+@test
+def test_compare_pre_release():
+    version_1 = Version("0.1.0")
+    version_2 = Version("0.1.0-rc4")
+
+    try:
+        message = ""
+        print(version_1 == version_2)
+    except SemVerError as err:
+        message = err.message
+
+    assert message == "comparing pre-release is not supported"
+
+@test
+def test_compare_build_metadata():
+    version_1 = Version("0.1.0")
+    version_2 = Version("0.1.0+981238912")
+
+    try:
+        message = ""
+        print(version_1 == version_2)
+    except SemVerError as err:
+        message = err.message
+
+    assert message == "comparing build metadata is not supported"
