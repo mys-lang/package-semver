@@ -25,6 +25,58 @@ class PreRelease:
 
         self._value = mo.group(1)
 
+    def identifiers(self) -> [string]:
+        """Returns the idenetifiers (dot separated values). For example, the
+        pre-release "alpha.1" has two identifiers, "alpha" and "1".
+
+        """
+
+        return self._value.split(".")
+
+    def __eq__(self, other: PreRelease) -> bool:
+        return self._value == str(other)
+
+    def __ne__(self, other: PreRelease) -> bool:
+        return not (self == other)
+
+    def __lt__(self, other: PreRelease) -> bool:
+        identifiers = self.identifiers()
+        other_identifiers = other.identifiers()
+        compare_count = min(len(identifiers), len(other_identifiers))
+
+        for i in range(i64(compare_count)):
+            is_numeric = identifiers[i].is_numeric()
+            is_other_numeric = other_identifiers[i].is_numeric()
+
+            if is_numeric and is_other_numeric:
+                numeric = u64(identifiers[i])
+                other_numeric = u64(other_identifiers[i])
+
+                if numeric < other_numeric:
+                    return True
+
+                if numeric > other_numeric:
+                    return False
+            elif is_numeric and not is_other_numeric:
+                return True
+            elif not is_numeric and is_other_numeric:
+                return False
+            elif identifiers[i] < other_identifiers[i]:
+                return True
+            elif identifiers[i] > other_identifiers[i]:
+                return False
+
+        return len(identifiers) < len(other_identifiers)
+
+    def __gt__(self, other: PreRelease) -> bool:
+        return not (self <= other)
+
+    def __le__(self, other: PreRelease) -> bool:
+        return self < other or self == other
+
+    def __ge__(self, other: PreRelease) -> bool:
+        return not (self < other)
+
     def __str__(self) -> string:
         return self._value
 
@@ -52,10 +104,6 @@ class BuildMetadata:
 
     def __str__(self) -> string:
         return self._value
-
-def _check_compare_no_pre_release(version: Version):
-    if version.pre_release is not None:
-        raise SemVerError("comparing pre-release is not supported")
 
 class Version:
     """A semantic version.
@@ -107,30 +155,59 @@ class Version:
             self.build_metadata = None
 
     def __eq__(self, other: Version) -> bool:
-        _check_compare_no_pre_release(self)
-        _check_compare_no_pre_release(other)
+        if self.major != other.major:
+            return False
 
-        return ((self.major == other.major)
-                and (self.minor == other.minor)
-                and (self.patch == other.patch))
+        if self.minor != other.minor:
+            return False
+
+        if self.patch != other.patch:
+            return False
+
+        if self.pre_release is not None and other.pre_release is not None:
+            if self.pre_release != other.pre_release:
+                return False
+
+        if self.pre_release is not None and other.pre_release is None:
+            return False
+
+        if self.pre_release is None and other.pre_release is not None:
+            return False
+
+        return True
 
     def __ne__(self, other: Version) -> bool:
         return not (self == other)
 
     def __lt__(self, other: Version) -> bool:
-        _check_compare_no_pre_release(self)
-        _check_compare_no_pre_release(other)
-
         if self.major < other.major:
             return True
-        elif self.major == other.major:
-            if self.minor < other.minor:
-                return True
-            elif self.minor == other.minor:
-                if self.patch < other.patch:
-                    return True
 
-        return False
+        if self.major > other.major:
+            return False
+
+        if self.minor < other.minor:
+            return True
+
+        if self.minor > other.minor:
+            return False
+
+        if self.patch < other.patch:
+            return True
+
+        if self.patch > other.patch:
+            return False
+
+        if self.pre_release is None and other.pre_release is None:
+            return False
+
+        if self.pre_release is not None and other.pre_release is None:
+            return True
+
+        if self.pre_release is None and other.pre_release is not None:
+            return False
+
+        return self.pre_release < other.pre_release
 
     def __gt__(self, other: Version) -> bool:
         return not (self <= other)
@@ -231,16 +308,37 @@ def test_compare():
 
 @test
 def test_compare_pre_release():
-    version_1 = Version("0.1.0")
-    version_2 = Version("0.1.0-rc4")
+    assert Version("1.0.0-alpha") < Version("1.0.0-alpha.1")
+    assert Version("1.0.0-alpha.1") < Version("1.0.0-alpha.beta")
+    assert Version("1.0.0-alpha.beta") < Version("1.0.0-beta")
+    assert Version("1.0.0-beta") < Version("1.0.0-beta.2")
+    assert Version("1.0.0-beta.2") < Version("1.0.0-beta.11")
+    assert Version("1.0.0-beta.11") < Version("1.0.0-rc.1")
+    assert Version("1.0.0-rc.1") < Version("1.0.0")
 
-    try:
-        message = ""
-        print(version_1 == version_2)
-    except SemVerError as err:
-        message = err.message
+    assert Version("1.0.0-alpha") != Version("1.0.0-alpha.1")
+    assert not (Version("1.0.0-alpha") == Version("1.0.0-alpha.1"))
+    assert Version("1.0.0") != Version("1.0.0-alpha")
+    assert Version("1.0.0-1") != Version("1.0.0")
+    assert Version("1.0.0") > Version("1.0.0-rc.1")
 
-    assert message == "comparing pre-release is not supported"
+    assert PreRelease("alpha") < PreRelease("alpha.1")
+    assert PreRelease("alpha.1") < PreRelease("alpha.beta")
+    assert PreRelease("alpha.beta") > PreRelease("alpha.1")
+    assert PreRelease("alpha.beta") < PreRelease("beta")
+    assert PreRelease("beta") > PreRelease("alpha.beta")
+    assert PreRelease("beta") < PreRelease("beta.2")
+    assert PreRelease("beta.2") < PreRelease("beta.11")
+    assert PreRelease("beta.11") < PreRelease("rc.1")
+
+    assert PreRelease("rc.1") == PreRelease("rc.1")
+    assert PreRelease("rc.1") != PreRelease("rc.2")
+    assert PreRelease("rc.1") < PreRelease("rc.2")
+    assert PreRelease("rc.2") > PreRelease("rc.1")
+    assert PreRelease("rc.1") <= PreRelease("rc.1")
+    assert PreRelease("rc.1") <= PreRelease("rc.2")
+    assert PreRelease("rc.2") >= PreRelease("rc.1")
+    assert PreRelease("rc.1") >= PreRelease("rc.1")
 
 @test
 def test_compare_build_metadata():
@@ -248,3 +346,27 @@ def test_compare_build_metadata():
     version_2 = Version("0.1.0+981238912")
 
     assert version_1 == version_2
+
+@test
+def test_pre_release_identifiers():
+    assert PreRelease("alpha.1").identifiers() == ["alpha", "1"]
+
+@test
+def test_bad_pre_release():
+    try:
+        message = ""
+        PreRelease("")
+    except SemVerError as err:
+        message = err.message
+
+    assert message == "invalid semantic version pre-release ''"
+
+@test
+def test_bad_build_metadata():
+    try:
+        message = ""
+        BuildMetadata("")
+    except SemVerError as err:
+        message = err.message
+
+    assert message == "invalid semantic version build metadata ''"
