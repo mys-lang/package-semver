@@ -37,9 +37,9 @@ An application comparing two versions:
 
 Build and run:
 
-.. code-block:: text
+.. code-block:: myscon
 
-   $ mys run -- 1.0.0 2.0.0
+   ❯ mys run -- 1.0.0 2.0.0
     ✔ Reading package configuration (0 seconds)
     ✔ Building (0.01 seconds)
    2.0.0 is newer than 1.0.0.
