@@ -14,7 +14,7 @@ Example
 
 An application comparing two versions:
 
-.. code-block:: python
+.. code-block:: mys
 
    from semver import Version
    from argparse import Parser
