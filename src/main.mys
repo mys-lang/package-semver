@@ -1,0 +1,36 @@
+from semver import Version
+from argparse import Parser
+from argparse import Args
+
+def handle_increment(args: Args):
+    version = Version(args.value_of("version"))
+
+    match args.value_of("field"):
+        case "major":
+            version.increment_major()
+        case "minor":
+            version.increment_minor()
+        case "patch":
+            version.increment_patch()
+        case _ as field:
+            raise SystemExitError(f"invalid field '{field}'")
+
+    print(str(version))
+
+def main(argv: [string]):
+    parser = Parser("semver")
+    increment_parser = parser.add_subcommand("increment")
+    increment_parser.add_positional(
+        "field",
+        help="Field to increment (major, minor or patch).")
+    increment_parser.add_positional("version", help="Current version.")
+    args = parser.parse(argv)
+    subcommand, args = args.subcommand()
+
+    match subcommand:
+        case "increment":
+            handle_increment(args)
+        case None:
+            raise SystemExitError("no subcommand given")
+        case _:
+            raise SystemExitError(f"invalid subcommand '{subcommand}'")

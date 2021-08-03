@@ -154,6 +154,38 @@ class Version:
         else:
             self.build_metadata = None
 
+    def increment_major(self):
+        """Increment major by one. Reset pre-release, build metadata, minor
+        and patch.
+
+        """
+
+        self.pre_release = None
+        self.build_metadata = None
+        self.major += 1
+        self.minor = 0
+        self.patch = 0
+
+    def increment_minor(self):
+        """Increment minor by one. Reset pre-release, build metadata and
+        patch.
+
+        """
+
+        self.pre_release = None
+        self.build_metadata = None
+        self.minor += 1
+        self.patch = 0
+
+    def increment_patch(self):
+        """Increment patch by one. Reset pre-release and build metadata.
+
+        """
+
+        self.pre_release = None
+        self.build_metadata = None
+        self.patch += 1
+
     def __eq__(self, other: Version) -> bool:
         if self.major != other.major:
             return False
@@ -370,3 +402,39 @@ def test_bad_build_metadata():
         message = err.message
 
     assert message == "invalid semantic version build metadata ''"
+
+@test
+def test_increment_major():
+    datas = [
+        ("0.1.0", "1.0.0"),
+        ("1.1.1-123+45", "2.0.0")
+    ]
+
+    for current_version, expected_version in datas:
+        version = Version(current_version)
+        version.increment_major()
+        assert version == Version(expected_version)
+
+@test
+def test_increment_minor():
+    datas = [
+        ("0.1.0", "0.2.0"),
+        ("1.1.1-123+45", "1.2.0")
+    ]
+
+    for current_version, expected_version in datas:
+        version = Version(current_version)
+        version.increment_minor()
+        assert version == Version(expected_version)
+
+@test
+def test_increment_patch():
+    datas = [
+        ("0.1.0", "0.1.1"),
+        ("1.1.1-123+45", "1.1.2")
+    ]
+
+    for current_version, expected_version in datas:
+        version = Version(current_version)
+        version.increment_patch()
+        assert version == Version(expected_version)
