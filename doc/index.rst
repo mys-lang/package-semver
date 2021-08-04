@@ -9,6 +9,23 @@ The `semantic versioning`_ package in the `Mys programming language`_.
 
 Project: https://github.com/mys-lang/package-semver
 
+Application
+===========
+
+The ``semver`` application can increment version numbers as seen
+below.
+
+.. code-block:: myscon
+
+   ❯ mys install semver
+   ...
+    ✔ Building (0.28 seconds)
+    ✔ Installing semver in /Users/erik/.local/bin (0 seconds)
+   ❯ semver increment major 2.1.3
+   3.0.0
+   ❯ semver increment minor 2.1.3-rc4
+   2.2.0
+
 Example
 =======
 
