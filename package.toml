@@ -1,8 +1,9 @@
 [package]
 name = "semver"
-version = "0.25.0"
+version = "0.26.0"
 authors = ["Erik Moqvist <erik.moqvist@gmail.com>"]
 description = "Semantic versioning."
 
 [dependencies]
 argparse = "latest"
+string = "latest"
