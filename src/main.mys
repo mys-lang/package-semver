@@ -18,8 +18,12 @@ def handle_increment(args: Args):
     print(str(version))
 
 def main(argv: [string]):
-    parser = Parser("semver")
-    increment_parser = parser.add_subcommand("increment")
+    parser = Parser("semver",
+                    version=__version__,
+                    help="Semantic versioning tools.")
+    increment_parser = parser.add_subcommand(
+        "increment",
+        help="Increment major, minor or patch.")
     increment_parser.add_positional(
         "field",
         help="Field to increment (major, minor or patch).")
