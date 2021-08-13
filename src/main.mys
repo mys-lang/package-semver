@@ -1,4 +1,4 @@
-from semver import Version
+from . import Version
 from argparse import Parser
 from argparse import Args
 
