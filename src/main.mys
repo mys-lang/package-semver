@@ -1,6 +1,6 @@
-from . import Version
-from argparse import Parser
 from argparse import Args
+from argparse import Parser
+from . import Version
 
 def handle_increment(args: Args):
     version = Version(args.value_of("version"))
