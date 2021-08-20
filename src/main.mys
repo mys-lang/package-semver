@@ -18,8 +18,7 @@ def handle_increment(args: Args):
     print(str(version))
 
 def main(argv: [string]):
-    parser = Parser("semver",
-                    version=__version__,
+    parser = Parser(version=__version__,
                     help="Semantic versioning tools.")
     increment_parser = parser.add_subcommand(
         "increment",
