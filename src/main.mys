@@ -34,6 +34,4 @@ def main(argv: [string]):
         case "increment":
             handle_increment(args)
         case None:
-            raise SystemExitError("no subcommand given")
-        case _:
-            raise SystemExitError(f"invalid subcommand '{subcommand}'")
+            raise SystemExitError("error: no subcommand given")
