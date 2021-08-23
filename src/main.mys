@@ -13,7 +13,7 @@ def handle_increment(args: Args):
         case "patch":
             version.increment_patch()
         case _ as field:
-            raise SystemExitError(f"invalid field '{field}'")
+            raise SystemExitError(f"error: invalid field '{field}'")
 
     print(str(version))
 
