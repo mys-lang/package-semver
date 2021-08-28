@@ -12,8 +12,6 @@ def handle_increment(args: Args):
             version.increment_minor()
         case "patch":
             version.increment_patch()
-        case _ as field:
-            raise SystemExitError(f"error: invalid field '{field}'")
 
     print(str(version))
 
@@ -25,6 +23,7 @@ def main(argv: [string]):
         help="Increment major, minor or patch.")
     increment_parser.add_positional(
         "field",
+        choices=["major", "minor", "patch"],
         help="Field to increment (major, minor or patch).")
     increment_parser.add_positional("version", help="Current version.")
     args = parser.parse(argv)
@@ -33,5 +32,3 @@ def main(argv: [string]):
     match subcommand:
         case "increment":
             handle_increment(args)
-        case None:
-            raise SystemExitError("error: no subcommand given")
