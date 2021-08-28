@@ -136,9 +136,12 @@ class Version:
         if mo is None:
             raise SemVerError(f"invalid semantic version '{version}'")
 
-        self.major = u64(mo.group(1))
-        self.minor = u64(mo.group(2))
-        self.patch = u64(mo.group(3))
+        try:
+            self.major = u64(mo.group(1))
+            self.minor = u64(mo.group(2))
+            self.patch = u64(mo.group(3))
+        except ValueError:
+            raise SemVerError(f"invalid semantic version '{version}'")
 
         value = mo.group(4)
 
@@ -293,20 +296,23 @@ def test_version():
 @test
 def test_bad_versions():
     try:
-        message = ""
         Version("1.0")
-    except SemVerError as err:
-        message = err.message
-
-    assert message == "invalid semantic version '1.0'"
+        assert False
+    except SemVerError as error:
+        assert error.message == "invalid semantic version '1.0'"
 
     try:
-        message = ""
         Version("0.0.0.1")
-    except SemVerError as err:
-        message = err.message
+        assert False
+    except SemVerError as error:
+        assert error.message == "invalid semantic version '0.0.0.1'"
 
-    assert message == "invalid semantic version '0.0.0.1'"
+    try:
+        Version("1000000000000000000000000000000000000000.0.0")
+        assert False
+    except SemVerError as error:
+        assert error.message == (
+            "invalid semantic version '1000000000000000000000000000000000000000.0.0'")
 
 @test
 def test_compare():
@@ -386,22 +392,18 @@ def test_pre_release_identifiers():
 @test
 def test_bad_pre_release():
     try:
-        message = ""
         PreRelease("")
-    except SemVerError as err:
-        message = err.message
-
-    assert message == "invalid semantic version pre-release ''"
+        assert False
+    except SemVerError as error:
+        assert error.message == "invalid semantic version pre-release ''"
 
 @test
 def test_bad_build_metadata():
     try:
-        message = ""
         BuildMetadata("")
-    except SemVerError as err:
-        message = err.message
-
-    assert message == "invalid semantic version build metadata ''"
+        assert False
+    except SemVerError as error:
+        assert error.message == "invalid semantic version build metadata ''"
 
 @test
 def test_increment_major():

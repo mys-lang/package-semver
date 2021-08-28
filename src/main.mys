@@ -1,19 +1,23 @@
 from argparse import Args
 from argparse import Parser
 from . import Version
+from . import SemVerError
 
 def handle_increment(args: Args):
-    version = Version(args.value_of("version"))
+    try:
+        version = Version(args.value_of("version"))
 
-    match args.value_of("field"):
-        case "major":
-            version.increment_major()
-        case "minor":
-            version.increment_minor()
-        case "patch":
-            version.increment_patch()
+        match args.value_of("field"):
+            case "major":
+                version.increment_major()
+            case "minor":
+                version.increment_minor()
+            case "patch":
+                version.increment_patch()
 
-    print(str(version))
+        print(str(version))
+    except SemVerError as error:
+        raise SystemExitError(f"error: {error.message}")
 
 def main(argv: [string]):
     parser = Parser(version=__version__,
