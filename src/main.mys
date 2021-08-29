@@ -1,7 +1,10 @@
+from ansicolors import BOLD
+from ansicolors import RED
+from ansicolors import RESET
 from argparse import Args
 from argparse import Parser
-from . import Version
 from . import SemVerError
+from . import Version
 
 def handle_increment(args: Args):
     try:
@@ -17,7 +20,7 @@ def handle_increment(args: Args):
 
         print(str(version))
     except SemVerError as error:
-        raise SystemExitError(f"error: {error.message}")
+        raise SystemExitError(f"{RED}{BOLD}error{RESET}: {error.message}")
 
 def main(argv: [string]):
     parser = Parser(version=__version__,
