@@ -7,24 +7,35 @@ from . import SemVerError
 from . import Version
 
 def handle_increment(args: Args):
-    try:
-        version = Version(args.value_of("version"))
+    version = Version(args.value_of("version"))
 
-        match args.value_of("field"):
-            case "major":
-                version.increment_major()
-            case "minor":
-                version.increment_minor()
-            case "patch":
-                version.increment_patch()
+    match args.value_of("field"):
+        case "major":
+            version.increment_major()
+        case "minor":
+            version.increment_minor()
+        case "patch":
+            version.increment_patch()
 
-        print(str(version))
-    except SemVerError as error:
-        raise SystemExitError(f"{RED}{BOLD}error{RESET}: {error.message}")
+    print(str(version))
+
+def handle_sort(args: Args):
+    versions = [Version(version) for version in args.values_of("versions")]
+
+    # ToDo: Just call versions.sort()
+    for i in range(i64(len(versions))):
+        for j in range(i + 1, i64(len(versions))):
+            if versions[j] < versions[i]:
+                version = versions[i]
+                versions[i] = versions[j]
+                versions[j] = version
+
+    print(" ".join([str(version) for version in versions]))
 
 def main(argv: [string]):
     parser = Parser(version=__version__,
                     help="Semantic versioning tools.")
+
     increment_parser = parser.add_subcommand(
         "increment",
         help="Increment major, minor or patch.")
@@ -33,9 +44,20 @@ def main(argv: [string]):
         choices=["major", "minor", "patch"],
         help="Field to increment (major, minor or patch).")
     increment_parser.add_positional("version", help="Current version.")
+
+    sort_parser = parser.add_subcommand(
+        "sort",
+        help="Sort versions from oldest to newest.")
+    sort_parser.add_positional("versions", multiple_occurrences=True)
+
     args = parser.parse(argv)
     subcommand, args = args.subcommand()
 
-    match subcommand:
-        case "increment":
-            handle_increment(args)
+    try:
+        match subcommand:
+            case "increment":
+                handle_increment(args)
+            case "sort":
+                handle_sort(args)
+    except SemVerError as error:
+        raise SystemExitError(f"{RED}{BOLD}error{RESET}: {error.message}")
