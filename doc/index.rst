@@ -36,7 +36,7 @@ An application comparing two versions:
    from semver import Version
    from argparse import Parser
 
-   def main(argv: [string]):
+   func main(argv: [string]):
        parser = Parser("compare")
        parser.add_positional("version-1")
        parser.add_positional("version-2")

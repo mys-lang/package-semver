@@ -6,7 +6,7 @@ from argparse import Parser
 from . import SemVerError
 from . import Version
 
-def handle_increment(args: Args):
+func handle_increment(args: Args):
     version = Version(args.value_of("version"))
 
     match args.value_of("field"):
@@ -19,7 +19,7 @@ def handle_increment(args: Args):
 
     print(str(version))
 
-def handle_sort(args: Args):
+func handle_sort(args: Args):
     versions = [Version(version) for version in args.values_of("versions")]
 
     # ToDo: Just call versions.sort()
@@ -32,7 +32,7 @@ def handle_sort(args: Args):
 
     print(" ".join([str(version) for version in versions]))
 
-def main(argv: [string]):
+func main(argv: [string]):
     parser = Parser(version=__version__,
                     help="Semantic versioning tools.")
 

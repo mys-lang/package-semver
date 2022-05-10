@@ -8,7 +8,7 @@ class PreRelease:
 
     _value: string
 
-    def __init__(self, value: string):
+    func __init__(self, value: string):
         """Initialize a pre-release object from given string `value`.
 
         Raises SemVerError if `value` is not a valid semantic version
@@ -25,7 +25,7 @@ class PreRelease:
 
         self._value = mo.group(1)
 
-    def identifiers(self) -> [string]:
+    func identifiers(self) -> [string]:
         """Returns the idenetifiers (dot separated values). For example, the
         pre-release "alpha.1" has two identifiers, "alpha" and "1".
 
@@ -33,13 +33,13 @@ class PreRelease:
 
         return self._value.split(".")
 
-    def __eq__(self, other: PreRelease) -> bool:
+    func __eq__(self, other: PreRelease) -> bool:
         return self._value == str(other)
 
-    def __ne__(self, other: PreRelease) -> bool:
+    func __ne__(self, other: PreRelease) -> bool:
         return not (self == other)
 
-    def __lt__(self, other: PreRelease) -> bool:
+    func __lt__(self, other: PreRelease) -> bool:
         identifiers = self.identifiers()
         other_identifiers = other.identifiers()
         compare_count = min(len(identifiers), len(other_identifiers))
@@ -68,16 +68,16 @@ class PreRelease:
 
         return len(identifiers) < len(other_identifiers)
 
-    def __gt__(self, other: PreRelease) -> bool:
+    func __gt__(self, other: PreRelease) -> bool:
         return not (self <= other)
 
-    def __le__(self, other: PreRelease) -> bool:
+    func __le__(self, other: PreRelease) -> bool:
         return self < other or self == other
 
-    def __ge__(self, other: PreRelease) -> bool:
+    func __ge__(self, other: PreRelease) -> bool:
         return not (self < other)
 
-    def __str__(self) -> string:
+    func __str__(self) -> string:
         return self._value
 
 class BuildMetadata:
@@ -87,7 +87,7 @@ class BuildMetadata:
 
     _value: string
 
-    def __init__(self, value: string):
+    func __init__(self, value: string):
         """Initialize a build metadata object from given string `value`.
 
         Raises SemVerError if `value` is not a valid semantic version
@@ -102,7 +102,7 @@ class BuildMetadata:
 
         self._value = mo.group(1)
 
-    def __str__(self) -> string:
+    func __str__(self) -> string:
         return self._value
 
 class Version:
@@ -116,7 +116,7 @@ class Version:
     pre_release: PreRelease
     build_metadata: BuildMetadata
 
-    def __init__(self, version: string):
+    func __init__(self, version: string):
         """Initialize a version object from given string `version`.
 
         Raises SemVerError if `version` is not a valid semantic
@@ -157,7 +157,7 @@ class Version:
         else:
             self.build_metadata = None
 
-    def increment_major(self):
+    func increment_major(self):
         """Increment major by one. Reset pre-release, build metadata, minor
         and patch.
 
@@ -169,7 +169,7 @@ class Version:
         self.minor = 0
         self.patch = 0
 
-    def increment_minor(self):
+    func increment_minor(self):
         """Increment minor by one. Reset pre-release, build metadata and
         patch.
 
@@ -180,7 +180,7 @@ class Version:
         self.minor += 1
         self.patch = 0
 
-    def increment_patch(self):
+    func increment_patch(self):
         """Increment patch by one. Reset pre-release and build metadata.
 
         """
@@ -189,7 +189,7 @@ class Version:
         self.build_metadata = None
         self.patch += 1
 
-    def __eq__(self, other: Version) -> bool:
+    func __eq__(self, other: Version) -> bool:
         if self.major != other.major:
             return False
 
@@ -211,10 +211,10 @@ class Version:
 
         return True
 
-    def __ne__(self, other: Version) -> bool:
+    func __ne__(self, other: Version) -> bool:
         return not (self == other)
 
-    def __lt__(self, other: Version) -> bool:
+    func __lt__(self, other: Version) -> bool:
         if self.major < other.major:
             return True
 
@@ -244,16 +244,16 @@ class Version:
 
         return self.pre_release < other.pre_release
 
-    def __gt__(self, other: Version) -> bool:
+    func __gt__(self, other: Version) -> bool:
         return not (self <= other)
 
-    def __le__(self, other: Version) -> bool:
+    func __le__(self, other: Version) -> bool:
         return self < other or self == other
 
-    def __ge__(self, other: Version) -> bool:
+    func __ge__(self, other: Version) -> bool:
         return not (self < other)
 
-    def __str__(self) -> string:
+    func __str__(self) -> string:
         version = f"{self.major}.{self.minor}.{self.patch}"
 
         if self.pre_release is not None:
@@ -265,7 +265,7 @@ class Version:
         return version
 
 @test
-def test_version():
+func test_version():
     version_string = "1.2.0-rc-4+meta"
     version = Version(version_string)
     assert version.major == 1
@@ -294,7 +294,7 @@ def test_version():
     assert str(version) == version_string
 
 @test
-def test_bad_versions():
+func test_bad_versions():
     try:
         Version("1.0")
         assert False
@@ -315,7 +315,7 @@ def test_bad_versions():
             "invalid semantic version '1000000000000000000000000000000000000000.0.0'")
 
 @test
-def test_compare():
+func test_compare():
     assert Version("1.0.0") > Version("0.0.0")
     assert Version("1.1.0") > Version("1.0.0")
     assert Version("1.1.1") > Version("1.1.0")
@@ -345,7 +345,7 @@ def test_compare():
     assert str(version.build_metadata) == "1fd3493b"
 
 @test
-def test_compare_pre_release():
+func test_compare_pre_release():
     assert Version("1.0.0-alpha") < Version("1.0.0-alpha.1")
     assert Version("1.0.0-alpha.1") < Version("1.0.0-alpha.beta")
     assert Version("1.0.0-alpha.beta") < Version("1.0.0-beta")
@@ -379,18 +379,18 @@ def test_compare_pre_release():
     assert PreRelease("rc.1") >= PreRelease("rc.1")
 
 @test
-def test_compare_build_metadata():
+func test_compare_build_metadata():
     version_1 = Version("0.1.0")
     version_2 = Version("0.1.0+981238912")
 
     assert version_1 == version_2
 
 @test
-def test_pre_release_identifiers():
+func test_pre_release_identifiers():
     assert PreRelease("alpha.1").identifiers() == ["alpha", "1"]
 
 @test
-def test_bad_pre_release():
+func test_bad_pre_release():
     try:
         PreRelease("")
         assert False
@@ -398,7 +398,7 @@ def test_bad_pre_release():
         assert error.message == "invalid semantic version pre-release ''"
 
 @test
-def test_bad_build_metadata():
+func test_bad_build_metadata():
     try:
         BuildMetadata("")
         assert False
@@ -406,7 +406,7 @@ def test_bad_build_metadata():
         assert error.message == "invalid semantic version build metadata ''"
 
 @test
-def test_increment_major():
+func test_increment_major():
     datas = [
         ("0.1.0", "1.0.0"),
         ("1.1.1-123+45", "2.0.0")
@@ -418,7 +418,7 @@ def test_increment_major():
         assert version == Version(expected_version)
 
 @test
-def test_increment_minor():
+func test_increment_minor():
     datas = [
         ("0.1.0", "0.2.0"),
         ("1.1.1-123+45", "1.2.0")
@@ -430,7 +430,7 @@ def test_increment_minor():
         assert version == Version(expected_version)
 
 @test
-def test_increment_patch():
+func test_increment_patch():
     datas = [
         ("0.1.0", "0.1.1"),
         ("1.1.1-123+45", "1.1.2")
