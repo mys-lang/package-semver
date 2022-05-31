@@ -30,7 +30,8 @@ func handle_sort(args: Args):
                 versions[i] = versions[j]
                 versions[j] = version
 
-    print(" ".join([str(version) for version in versions]))
+    for version in versions:
+        print(version)
 
 func main(argv: [string]):
     parser = Parser(version=__version__,
