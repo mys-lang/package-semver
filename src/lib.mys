@@ -264,8 +264,7 @@ class Version:
 
         return version
 
-@test
-func test_version():
+test version():
     version_string = "1.2.0-rc-4+meta"
     version = Version(version_string)
     assert version.major == 1
@@ -293,8 +292,7 @@ func test_version():
     assert str(version.build_metadata) == "foo"
     assert str(version) == version_string
 
-@test
-func test_bad_versions():
+test bad_versions():
     try:
         Version("1.0")
         assert False
@@ -314,8 +312,7 @@ func test_bad_versions():
         assert error.message == (
             "invalid semantic version '1000000000000000000000000000000000000000.0.0'")
 
-@test
-func test_compare():
+test compare():
     assert Version("1.0.0") > Version("0.0.0")
     assert Version("1.1.0") > Version("1.0.0")
     assert Version("1.1.1") > Version("1.1.0")
@@ -344,8 +341,7 @@ func test_compare():
     assert str(version.pre_release) == "rc5"
     assert str(version.build_metadata) == "1fd3493b"
 
-@test
-func test_compare_pre_release():
+test compare_pre_release():
     assert Version("1.0.0-alpha") < Version("1.0.0-alpha.1")
     assert Version("1.0.0-alpha.1") < Version("1.0.0-alpha.beta")
     assert Version("1.0.0-alpha.beta") < Version("1.0.0-beta")
@@ -378,35 +374,30 @@ func test_compare_pre_release():
     assert PreRelease("rc.2") >= PreRelease("rc.1")
     assert PreRelease("rc.1") >= PreRelease("rc.1")
 
-@test
-func test_compare_build_metadata():
+test compare_build_metadata():
     version_1 = Version("0.1.0")
     version_2 = Version("0.1.0+981238912")
 
     assert version_1 == version_2
 
-@test
-func test_pre_release_identifiers():
+test pre_release_identifiers():
     assert PreRelease("alpha.1").identifiers() == ["alpha", "1"]
 
-@test
-func test_bad_pre_release():
+test bad_pre_release():
     try:
         PreRelease("")
         assert False
     except SemVerError as error:
         assert error.message == "invalid semantic version pre-release ''"
 
-@test
-func test_bad_build_metadata():
+test bad_build_metadata():
     try:
         BuildMetadata("")
         assert False
     except SemVerError as error:
         assert error.message == "invalid semantic version build metadata ''"
 
-@test
-func test_increment_major():
+test increment_major():
     datas = [
         ("0.1.0", "1.0.0"),
         ("1.1.1-123+45", "2.0.0")
@@ -417,8 +408,7 @@ func test_increment_major():
         version.increment_major()
         assert version == Version(expected_version)
 
-@test
-func test_increment_minor():
+test increment_minor():
     datas = [
         ("0.1.0", "0.2.0"),
         ("1.1.1-123+45", "1.2.0")
@@ -429,8 +419,7 @@ func test_increment_minor():
         version.increment_minor()
         assert version == Version(expected_version)
 
-@test
-func test_increment_patch():
+test increment_patch():
     datas = [
         ("0.1.0", "0.1.1"),
         ("1.1.1-123+45", "1.1.2")
