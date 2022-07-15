@@ -23,8 +23,8 @@ func handle_sort(args: Args):
     versions = [Version(version) for version in args.values_of("versions")]
 
     # ToDo: Just call versions.sort()
-    for i in range(i64(len(versions))):
-        for j in range(i + 1, i64(len(versions))):
+    for i in range(versions.length()):
+        for j in range(i + 1, versions.length()):
             if versions[j] < versions[i]:
                 version = versions[i]
                 versions[i] = versions[j]
