@@ -42,15 +42,15 @@ class PreRelease:
     func __lt__(self, other: PreRelease) -> bool:
         identifiers = self.identifiers()
         other_identifiers = other.identifiers()
-        compare_count = min(len(identifiers), len(other_identifiers))
+        compare_count = min(identifiers.length(), other_identifiers.length())
 
-        for i in range(i64(compare_count)):
+        for i in range(compare_count):
             is_numeric = identifiers[i].is_numeric()
             is_other_numeric = other_identifiers[i].is_numeric()
 
             if is_numeric and is_other_numeric:
-                numeric = u64(identifiers[i])
-                other_numeric = u64(other_identifiers[i])
+                numeric = i64(identifiers[i])
+                other_numeric = i64(other_identifiers[i])
 
                 if numeric < other_numeric:
                     return True
@@ -66,7 +66,7 @@ class PreRelease:
             elif identifiers[i] > other_identifiers[i]:
                 return False
 
-        return len(identifiers) < len(other_identifiers)
+        return identifiers.length() < other_identifiers.length()
 
     func __gt__(self, other: PreRelease) -> bool:
         return not (self <= other)
@@ -110,9 +110,9 @@ class Version:
 
     """
 
-    major: u64
-    minor: u64
-    patch: u64
+    major: i64
+    minor: i64
+    patch: i64
     pre_release: PreRelease
     build_metadata: BuildMetadata
 
@@ -137,9 +137,9 @@ class Version:
             raise SemVerError(f"invalid semantic version '{version}'")
 
         try:
-            self.major = u64(mo.group(1))
-            self.minor = u64(mo.group(2))
-            self.patch = u64(mo.group(3))
+            self.major = i64(mo.group(1))
+            self.minor = i64(mo.group(2))
+            self.patch = i64(mo.group(3))
         except ValueError:
             raise SemVerError(f"invalid semantic version '{version}'")
 
