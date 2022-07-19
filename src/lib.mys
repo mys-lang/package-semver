@@ -113,8 +113,8 @@ class Version:
     major: i64
     minor: i64
     patch: i64
-    pre_release: PreRelease
-    build_metadata: BuildMetadata
+    pre_release: PreRelease?
+    build_metadata: BuildMetadata?
 
     func __init__(self, version: string):
         """Initialize a version object from given string `version`.
