@@ -189,7 +189,7 @@ class Version:
         self.build_metadata = None
         self.patch += 1
 
-    func __eq__(self, other: Version) -> bool:
+    func ==(self, other: Version) -> bool:
         if self.major != other.major:
             return False
 
@@ -211,10 +211,10 @@ class Version:
 
         return True
 
-    func __ne__(self, other: Version) -> bool:
+    func !=(self, other: Version) -> bool:
         return not (self == other)
 
-    func __lt__(self, other: Version) -> bool:
+    func <(self, other: Version) -> bool:
         if self.major < other.major:
             return True
 
@@ -244,13 +244,13 @@ class Version:
 
         return self.pre_release < other.pre_release
 
-    func __gt__(self, other: Version) -> bool:
+    func >(self, other: Version) -> bool:
         return not (self <= other)
 
-    func __le__(self, other: Version) -> bool:
+    func <=(self, other: Version) -> bool:
         return self < other or self == other
 
-    func __ge__(self, other: Version) -> bool:
+    func >=(self, other: Version) -> bool:
         return not (self < other)
 
     func __str__(self) -> string:
