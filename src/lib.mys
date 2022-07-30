@@ -33,13 +33,13 @@ class PreRelease:
 
         return self._value.split(".")
 
-    func __eq__(self, other: PreRelease) -> bool:
+    func ==(self, other: PreRelease) -> bool:
         return self._value == str(other)
 
-    func __ne__(self, other: PreRelease) -> bool:
+    func !=(self, other: PreRelease) -> bool:
         return not (self == other)
 
-    func __lt__(self, other: PreRelease) -> bool:
+    func <(self, other: PreRelease) -> bool:
         identifiers = self.identifiers()
         other_identifiers = other.identifiers()
         compare_count = min(identifiers.length(), other_identifiers.length())
@@ -68,13 +68,13 @@ class PreRelease:
 
         return identifiers.length() < other_identifiers.length()
 
-    func __gt__(self, other: PreRelease) -> bool:
+    func >(self, other: PreRelease) -> bool:
         return not (self <= other)
 
-    func __le__(self, other: PreRelease) -> bool:
+    func <=(self, other: PreRelease) -> bool:
         return self < other or self == other
 
-    func __ge__(self, other: PreRelease) -> bool:
+    func >=(self, other: PreRelease) -> bool:
         return not (self < other)
 
     func __str__(self) -> string:
